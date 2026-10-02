@@ -1,0 +1,7 @@
+# Voice Education Assistant — backend dependencies
+#
+# Install with:
+#     pip install -r requirements.txt
+#
+# Add packages here only when a milestone requires them.
+# Keep versions pinned (==) once a package is in real use.

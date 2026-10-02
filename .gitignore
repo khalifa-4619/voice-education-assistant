@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Testing / linting caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Audio / media (raw recordings and generated audio must never be committed)
+*.wav
+*.mp3
+*.m4a
+*.webm
+*.ogg
+*.flac
+recordings/
+audio_samples/
+artifacts/
+
+# Model weights / large binaries (if we ever download N-ATLaS weights locally)
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+models/
+weights/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
