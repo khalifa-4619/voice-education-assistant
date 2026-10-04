@@ -1,12 +1,31 @@
 """Milestone 1 smoke test: audio -> N-ATLaS ASR -> transcript.
 
 Run from the backend directory:
-    python scripts/smoke_asr.py audio_samples/test_en_ng.wav
+    python -m scripts.smoke_asr audio_samples/test_en_ng.wav
 
-This is intentionally minimal. It exercises the LocalNATLASASR adapter
-against one audio file and prints the transcript and timing. It does not
-test the hosted adapter, which is a documented stub.
+The -m form is required. Running `python scripts/smoke_asr.py` puts
+scripts/ on sys.path, not the backend root, and `app` would not import.
+
+Note on latency: each invocation is a fresh process and pays a cold-start
+cost (~65 s on an i5-5300U). Warm in-process inference is measured at
+roughly 11.5 s for a 16 s clip. The eventual FastAPI service will load
+the model once and keep it resident, so per-request latency will be close
+to the warm figure, not the cold figure.
+
+This exercises the LocalNATLASASR adapter against one audio file and prints
+the transcript and timing. It does not test the hosted adapter, which is a
+documented stub.
+
+The OMP_NUM_THREADS / MKL_NUM_THREADS environment variables are set here
+because they must be in place before torch is imported anywhere in the
+process. The adapter imports torch lazily, so setting them at the top of
+this script is sufficient.
 """
+
+import os
+
+os.environ.setdefault("OMP_NUM_THREADS", "2")
+os.environ.setdefault("MKL_NUM_THREADS", "2")
 
 import sys
 import time
@@ -27,7 +46,7 @@ def main() -> int:
 
     print("model: NCAIR1/NigerianAccentedEnglish")
     print(f"audio: {audio_path}")
-    print("loading model (first run downloads ~1 GB, later runs use cache)...")
+    print("loading model (first run downloads weights, later runs use cache)...")
 
     asr = LocalNATLASASR()
 
