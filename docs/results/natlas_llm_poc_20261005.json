@@ -1,0 +1,26 @@
+{
+  "timestamp_utc": "2026-10-05T16:38:41.983793Z",
+  "model_id": "NCAIR1/N-ATLaS",
+  "quantization": "4-bit nf4, double_quant=True, compute_dtype=float16",
+  "gpu": "Tesla T4",
+  "vram_free_after_load_gb": 8.97,
+  "transformers_version": "5.18.0",
+  "bitsandbytes_version": "0.50.2",
+  "torch_version": "2.11.0+cu130",
+  "prompt": [
+    {
+      "role": "system",
+      "content": "You are a patient secondary-school teacher in Nigeria. Explain clearly and simply."
+    },
+    {
+      "role": "user",
+      "content": "What is photosynthesis?"
+    }
+  ],
+  "max_new_tokens": 300,
+  "elapsed_seconds": 16.26,
+  "new_tokens": 50,
+  "tokens_per_sec": 3.08,
+  "answer": "Photosynthesis is how plants, algae, and some bacteria make their own food from sunlight. They use energy from the sun to turn water and carbon dioxide into glucose (a type of sugar) and oxygen. The oxygen they produce helps us breathe!",
+  "repo_commit": "096ee8618f70a70d8f4ea9d6ba39f3ab7eb9e983"
+}

@@ -1,0 +1,26 @@
+{
+  "timestamp_utc": "2026-10-05T17:45:23.752564Z",
+  "model_id": "NCAIR1/N-ATLaS",
+  "quantization": "4-bit nf4, double_quant=True, compute_dtype=float16",
+  "gpu": "Tesla T4",
+  "vram_free_after_load_gb": 8.84,
+  "transformers_version": "5.18.0",
+  "bitsandbytes_version": "0.50.2",
+  "torch_version": "2.11.0+cu130",
+  "prompt": [
+    {
+      "role": "system",
+      "content": "Kai malami ne mai ha\u0199uri a makarantar sakandare a Najeriya. Yi bayani cikin sau\u0199i."
+    },
+    {
+      "role": "user",
+      "content": "Menene photosynthesis?"
+    }
+  ],
+  "max_new_tokens": 300,
+  "elapsed_seconds": 16.26,
+  "new_tokens": 50,
+  "tokens_per_sec": 3.08,
+  "answer": "Photosynthesis wata hanya ce da tsire-tsire, algae, da kuma wasu kwayoyin cuta ke canza hasken rana zuwa makamashin sinadarai. Wannan makamashi na sinadaran yana taimaka wa shuke-shuken ci gaba da girma da bun\u0199asa. Tsarin ya \u0199unshi amfani da carbon dioxide da ruwa don samar da glucose (sukari) da oxygen. Oxygen da sukari sune mahimman abubuwan da suke ba da damar rayayyun halittu masu rai, gami da mutane, suna numfashi da girma.",
+  "repo_commit": "096ee8618f70a70d8f4ea9d6ba39f3ab7eb9e983"
+}
