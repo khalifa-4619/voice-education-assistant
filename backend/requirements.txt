@@ -12,3 +12,7 @@ scipy==1.18.1
 soundfile==0.14.0
 torch==2.14.1+cpu
 transformers==5.18.0
+
+
+# Milestone 3 — pipeline tests
+pytest==9.1.1
