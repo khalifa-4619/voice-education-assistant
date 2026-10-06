@@ -16,3 +16,9 @@ transformers==5.18.0
 
 # Milestone 3 — pipeline tests
 pytest==9.1.1
+
+
+# Milestone 3 — FastAPI HTTP layer
+fastapi==0.142.2
+uvicorn==0.54.0
+httpx==0.28.1

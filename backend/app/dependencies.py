@@ -78,3 +78,14 @@ def build_pipeline() -> VoiceEducationPipeline:
         asr=_select_asr(asr_provider),
         llm=_select_llm(llm_provider),
     )
+
+def describe_providers() -> dict[str, str]:
+    """Return the currently selected provider names as plain data.
+
+    Used by the /health endpoint and any diagnostic tooling. Reads the same
+    environment variables as build_pipeline(), but constructs no adapters.
+    """
+    return {
+        "asr": os.environ.get("ASR_PROVIDER", "fake").strip().lower(),
+        "llm": os.environ.get("LLM_PROVIDER", "fake").strip().lower(),
+    }
