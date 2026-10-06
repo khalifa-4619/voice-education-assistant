@@ -22,3 +22,7 @@ pytest==9.1.1
 fastapi==0.142.2
 uvicorn==0.54.0
 httpx==0.28.1
+
+
+# Milestone 3 — audio upload support
+python-multipart==0.0.32
