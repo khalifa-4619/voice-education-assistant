@@ -1,3 +1,14 @@
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+# Windows-specific: some Windows setups have a %TEMP%\pytest-of-<user>
+# directory that pytest cannot write to (ownership/ACL issue). Adding
+# --basetemp redirects pytest's per-run temp files to a directory under
+# the user profile, which is always writable. -p no:cacheprovider
+# disables pytest's own cache, which can hit the same problem with
+# .pytest_cache inside the repo. Neither flag changes test behavior;
+# they only move where scratch files live.
+addopts = [
+    "-p", "no:cacheprovider",
+    "--basetemp=./.pytest_tmp",
+]
