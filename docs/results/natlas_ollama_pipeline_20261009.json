@@ -1,0 +1,28 @@
+{
+  "milestone": "first end-to-end pipeline run with real N-ATLaS LLM on CPU",
+  "date": "2026-10-09",
+  "runtime": "Ollama on Windows, CPU-only",
+  "model": "hf.co/Tushe/AMINI-ASSISTANT-GGUF-Q4-B:Q4_K_M",
+  "base_model": "NCAIR1/N-ATLaS",
+  "quantization": "Q4_K_M",
+  "hardware": "Lenovo laptop, 4 cores / 8 threads, ~13.9 GB RAM, no GPU",
+  "asr_provider": "fake",
+  "llm_provider": "ollama",
+  "route": "POST http://127.0.0.1:8000/api/v1/ask",
+  "request": {
+    "audio_file": "test_question.wav (1-byte stub, fake ASR does not read it)"
+  },
+  "response": {
+    "transcript": "What is photosynthesis?",
+    "answer": "Photosynthesis is the way plants, algae and some bacteria make their own food. They do this by using sunlight, water and carbon dioxide. The food they make is a sugar called glucose. They store the glucose in their leaves and stems. The oxygen they make during photosynthesis goes into the air.",
+    "asr_seconds": 0.0000098,
+    "llm_seconds": 79.36,
+    "total_seconds": 79.36,
+    "started_at": "2026-10-09T09:38:36.215857Z"
+  },
+  "notes": [
+    "Fake ASR was used deliberately; the focus of this run is LLM integration.",
+    "Generation rate ~3 tokens/sec on CPU matches earlier direct-API measurements.",
+    "Latency is not production-ready for a live voice assistant; production path is the official NCAIR hosted API."
+  ]
+}
