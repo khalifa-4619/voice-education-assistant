@@ -98,3 +98,38 @@ button:disabled {
   padding-top: 0.5rem;
   border-top: 1px solid #e2e8f0;
 }
+.mic-button {
+  font-size: 1rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.mic-button.recording {
+  background: #dc2626;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.7; }
+}
+
+.recording-indicator {
+  color: #dc2626;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.upload-fallback {
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.upload-fallback summary {
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+
+.upload-fallback input {
+  margin-top: 0.5rem;
+}
