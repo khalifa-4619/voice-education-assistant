@@ -1,68 +1,144 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ask, ApiError, type AskResponse } from "./api";
+import { MicrophoneRecorder } from "./recorder";
 
-type Status = "idle" | "loading" | "success" | "error";
+type Status =
+  | "idle"
+  | "requesting-permission"
+  | "recording"
+  | "processing"
+  | "success"
+  | "error";
 
 export default function App() {
-  const [file, setFile] = useState<File | null>(null);
+  const recorderRef = useRef<MicrophoneRecorder | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [result, setResult] = useState<AskResponse | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const selected = event.target.files?.[0] ?? null;
-    setFile(selected);
-    setStatus("idle");
+  // Timer that ticks while recording, so the user sees the elapsed time.
+  useEffect(() => {
+    if (status !== "recording") return;
+    const start = Date.now();
+    setElapsedSeconds(0);
+    const id = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - start) / 1000));
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [status]);
+
+  function resetOutput() {
     setResult(null);
     setErrorMessage("");
   }
 
-  async function handleSubmit() {
-    if (!file) return;
-    setStatus("loading");
-    setResult(null);
-    setErrorMessage("");
+  async function handleRecordClick() {
+    // Start recording.
+    if (status === "idle" || status === "success" || status === "error") {
+      resetOutput();
+      setStatus("requesting-permission");
+      const recorder = new MicrophoneRecorder();
+      recorderRef.current = recorder;
+      try {
+        await recorder.start();
+        setStatus("recording");
+      } catch (err) {
+        recorderRef.current = null;
+        setErrorMessage(friendlyMicError(err));
+        setStatus("error");
+      }
+      return;
+    }
+
+    // Stop recording and submit.
+    if (status === "recording") {
+      const recorder = recorderRef.current;
+      if (!recorder) return;
+      setStatus("processing");
+      try {
+        const recording = await recorder.stop();
+        recorderRef.current = null;
+
+        const file = new File(
+          [recording.blob],
+          `question.${recording.extension}`,
+          { type: recording.mimeType }
+        );
+
+        const response = await ask(file);
+        setResult(response);
+        setStatus("success");
+      } catch (err) {
+        setErrorMessage(describeError(err));
+        setStatus("error");
+      }
+    }
+  }
+
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const selected = event.target.files?.[0];
+    if (!selected) return;
+    resetOutput();
+    setStatus("processing");
     try {
-      const response = await ask(file);
+      const response = await ask(selected);
       setResult(response);
       setStatus("success");
     } catch (err) {
-      if (err instanceof ApiError) {
-        setErrorMessage(err.detail);
-      } else {
-        setErrorMessage("Unexpected error. Check the browser console.");
-        console.error(err);
-      }
+      setErrorMessage(describeError(err));
       setStatus("error");
+    } finally {
+      // Allow re-selecting the same file later.
+      event.target.value = "";
     }
   }
+
+  const isRecording = status === "recording";
+  const isBusy = status === "requesting-permission" || status === "processing";
 
   return (
     <main className="app">
       <h1>Voice Education Assistant</h1>
       <p className="subtitle">
-        Upload a spoken question. The assistant will transcribe it and answer.
+        Press the button, ask your question, then press again to send.
       </p>
 
       <div className="controls">
+        <button
+          className={`mic-button ${isRecording ? "recording" : ""}`}
+          onClick={handleRecordClick}
+          disabled={isBusy}
+        >
+          {status === "idle" && "🎤 Record question"}
+          {status === "requesting-permission" && "Waiting for permission…"}
+          {status === "recording" && "⏹ Stop and ask"}
+          {status === "processing" && "Working…"}
+          {status === "success" && "🎤 Ask another"}
+          {status === "error" && "🎤 Try again"}
+        </button>
+
+        {isRecording && (
+          <span className="recording-indicator">
+            🔴 Recording — {elapsedSeconds}s
+          </span>
+        )}
+      </div>
+
+      <details className="upload-fallback">
+        <summary>Or upload an audio file instead</summary>
         <input
           type="file"
           accept="audio/*"
           onChange={handleFileChange}
-          disabled={status === "loading"}
+          disabled={isBusy || isRecording}
         />
-        <button
-          onClick={handleSubmit}
-          disabled={!file || status === "loading"}
-        >
-          {status === "loading" ? "Asking…" : "Ask"}
-        </button>
-      </div>
+      </details>
 
-      {file && <p className="filename">Selected: {file.name}</p>}
-
-      {status === "loading" && (
-        <p className="status">Working… the real model takes 10–60 seconds.</p>
+      {status === "processing" && (
+        <p className="status">
+          The model takes 60–180 seconds on this CPU. Please wait…
+        </p>
       )}
 
       {status === "error" && (
@@ -92,4 +168,26 @@ export default function App() {
       )}
     </main>
   );
+}
+
+function friendlyMicError(err: unknown): string {
+  if (err instanceof DOMException) {
+    if (err.name === "NotAllowedError") {
+      return "Microphone permission was denied. Allow it in your browser settings and try again.";
+    }
+    if (err.name === "NotFoundError") {
+      return "No microphone was found on this device.";
+    }
+    if (err.name === "NotReadableError") {
+      return "The microphone is already in use by another application.";
+    }
+  }
+  if (err instanceof Error) return err.message;
+  return "Could not start recording.";
+}
+
+function describeError(err: unknown): string {
+  if (err instanceof ApiError) return err.detail;
+  if (err instanceof Error) return err.message;
+  return "Unexpected error.";
 }
