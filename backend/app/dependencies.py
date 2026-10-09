@@ -24,7 +24,7 @@ from app.llm.base import EducationalLLM
 from app.llm.fake import FakeEducationalLLM
 from app.pipeline import VoiceEducationPipeline
 
-_VALID_PROVIDERS = {"fake", "local", "hosted"}
+_VALID_PROVIDERS = {"fake", "local", "hosted", "ollama"}
 
 
 def _select_asr(provider: str) -> NATLASASR:
@@ -54,6 +54,10 @@ def _select_llm(provider: str) -> EducationalLLM:
             "4-bit Q4_K_M. The current development laptop has ~2.5 GB. "
             "Use LLM_PROVIDER=fake today; switch on the heavier machine."
         )
+    if provider == "ollama":
+        from app.llm.ollama import OllamaNATLASLLM
+
+        return OllamaNATLASLLM()
     if provider == "hosted":
         raise NotImplementedError(
             "LLM_PROVIDER=hosted: HostedNATLASLLM is a documented stub. "
@@ -63,7 +67,7 @@ def _select_llm(provider: str) -> EducationalLLM:
     raise ValueError(
         f"Unknown LLM_PROVIDER={provider!r}. Valid values: {sorted(_VALID_PROVIDERS)}."
     )
-
+    
 
 def build_pipeline() -> VoiceEducationPipeline:
     """Build the application pipeline from environment configuration.

@@ -71,3 +71,25 @@ def test_local_llm_provider_is_documented_hardware_block(monkeypatch):
 
     with pytest.raises(NotImplementedError, match="6-8 GB free RAM"):
         build_pipeline()
+def test_ollama_provider_selects_ollama_adapter(monkeypatch):
+    monkeypatch.setenv("ASR_PROVIDER", "fake")
+    monkeypatch.setenv("LLM_PROVIDER", "ollama")
+
+    from app.dependencies import build_pipeline
+    from app.llm.ollama import OllamaNATLASLLM
+
+    pipeline = build_pipeline()
+    # Verify wiring only -- do not call answer(), which would hit a real
+    # HTTP server that may not be running.
+    assert isinstance(pipeline._llm, OllamaNATLASLLM)
+
+
+def test_ollama_adapter_reads_env_overrides(monkeypatch):
+    monkeypatch.setenv("OLLAMA_BASE_URL", "http://example.invalid:9999")
+    monkeypatch.setenv("OLLAMA_MODEL", "test-model")
+
+    from app.llm.ollama import OllamaNATLASLLM
+
+    llm = OllamaNATLASLLM()
+    assert llm._base_url == "http://example.invalid:9999"
+    assert llm._model == "test-model"
