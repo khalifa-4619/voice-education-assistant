@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ask, ApiError, type AskResponse } from "./api";
 import { MicrophoneRecorder } from "./recorder";
+import { TextToSpeech } from "./tts";
 
 type Status =
   | "idle"
@@ -12,12 +13,22 @@ type Status =
 
 export default function App() {
   const recorderRef = useRef<MicrophoneRecorder | null>(null);
+  const ttsRef = useRef<TextToSpeech | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [result, setResult] = useState<AskResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
-  // Timer that ticks while recording, so the user sees the elapsed time.
+  // Set up TTS once.
+  useEffect(() => {
+    ttsRef.current = new TextToSpeech();
+    return () => {
+      ttsRef.current?.cancel();
+    };
+  }, []);
+
+  // Timer that ticks while recording.
   useEffect(() => {
     if (status !== "recording") return;
     const start = Date.now();
@@ -31,10 +42,11 @@ export default function App() {
   function resetOutput() {
     setResult(null);
     setErrorMessage("");
+    ttsRef.current?.cancel();
+    setIsSpeaking(false);
   }
 
   async function handleRecordClick() {
-    // Start recording.
     if (status === "idle" || status === "success" || status === "error") {
       resetOutput();
       setStatus("requesting-permission");
@@ -51,7 +63,6 @@ export default function App() {
       return;
     }
 
-    // Stop recording and submit.
     if (status === "recording") {
       const recorder = recorderRef.current;
       if (!recorder) return;
@@ -89,13 +100,35 @@ export default function App() {
       setErrorMessage(describeError(err));
       setStatus("error");
     } finally {
-      // Allow re-selecting the same file later.
       event.target.value = "";
+    }
+  }
+
+  function handlePlayAnswer() {
+    if (!result || !ttsRef.current) return;
+
+    if (isSpeaking) {
+      ttsRef.current.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    try {
+      ttsRef.current.onEnd(() => setIsSpeaking(false));
+      // Choose the language by whether the transcript contains characters
+      // outside the ASCII range -- a simple Hausa-vs-English heuristic.
+      // We pick "en-NG" for now; Hausa voices are not installed on
+      // Windows by default, so this is documented as a limitation.
+      ttsRef.current.speak(result.answer, { lang: "en-NG", rate: 0.95 });
+      setIsSpeaking(true);
+    } catch (err) {
+      setErrorMessage(describeError(err));
     }
   }
 
   const isRecording = status === "recording";
   const isBusy = status === "requesting-permission" || status === "processing";
+  const ttsAvailable = TextToSpeech.isSupported();
 
   return (
     <main className="app">
@@ -157,6 +190,20 @@ export default function App() {
           <section>
             <h2>Answer</h2>
             <p className="answer">{result.answer}</p>
+            {ttsAvailable && (
+              <button
+                className="play-button"
+                onClick={handlePlayAnswer}
+                type="button"
+              >
+                {isSpeaking ? "⏹ Stop" : "🔊 Play answer"}
+              </button>
+            )}
+            {!ttsAvailable && (
+              <p className="tts-unavailable">
+                Text-to-speech is not available in this browser.
+              </p>
+            )}
           </section>
 
           <section className="timings">

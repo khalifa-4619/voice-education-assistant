@@ -133,3 +133,19 @@ button:disabled {
 .upload-fallback input {
   margin-top: 0.5rem;
 }
+.play-button {
+  margin-top: 0.5rem;
+  background: #16a34a;
+  font-size: 0.95rem;
+}
+
+.play-button:hover {
+  background: #15803d;
+}
+
+.tts-unavailable {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-style: italic;
+}
