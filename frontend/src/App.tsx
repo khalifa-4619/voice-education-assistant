@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { ask, ApiError, type AskResponse } from "./api";
+import {
+  ask,
+  ApiError,
+  submitFeedback,
+  type AskResponse,
+} from "./api";
 import { MicrophoneRecorder } from "./recorder";
 import { TextToSpeech } from "./tts";
 
@@ -19,6 +24,14 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
+    // Feedback form state. Reset when a new result arrives.
+  const [feedbackUseful, setFeedbackUseful] = useState<boolean | null>(null);
+  const [feedbackLanguage, setFeedbackLanguage] = useState("en");
+  const [feedbackSubject, setFeedbackSubject] = useState("general");
+  const [feedbackNotes, setFeedbackNotes] = useState("");
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [feedbackError, setFeedbackError] = useState("");
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   // Set up TTS once.
   useEffect(() => {
@@ -79,6 +92,12 @@ export default function App() {
 
         const response = await ask(file);
         setResult(response);
+        setFeedbackUseful(null);
+        setFeedbackLanguage("en");
+        setFeedbackSubject("general");
+        setFeedbackNotes("");
+        setFeedbackSubmitted(false);
+        setFeedbackError("");
         setStatus("success");
       } catch (err) {
         setErrorMessage(describeError(err));
@@ -95,6 +114,12 @@ export default function App() {
     try {
       const response = await ask(selected);
       setResult(response);
+      setFeedbackUseful(null)   
+      setFeedbackLanguage("en");
+      setFeedbackSubject("general");
+      setFeedbackNotes("");
+      setFeedbackSubmitted(false);
+      setFeedbackError("");
       setStatus("success");
     } catch (err) {
       setErrorMessage(describeError(err));
@@ -126,6 +151,25 @@ export default function App() {
     }
   }
 
+  async function handleSubmitFeedback() {
+    if (!result || feedbackUseful === null) return;
+    setSubmittingFeedback(true);
+    setFeedbackError("");
+    try {
+      await submitFeedback({
+        interaction_id: result.interaction_id,
+        useful: feedbackUseful,
+        language: feedbackLanguage,
+        subject: feedbackSubject,
+        notes: feedbackNotes,
+      });
+      setFeedbackSubmitted(true);
+    } catch (err) {
+      setFeedbackError(describeError(err));
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  }
   const isRecording = status === "recording";
   const isBusy = status === "requesting-permission" || status === "processing";
   const ttsAvailable = TextToSpeech.isSupported();
@@ -205,6 +249,86 @@ export default function App() {
               </p>
             )}
           </section>
+          {!feedbackSubmitted && (
+            <section className="feedback">
+              <h2>Was this answer useful?</h2>
+              <div className="feedback-row">
+                <label>
+                  <input
+                    type="radio"
+                    name="useful"
+                    checked={feedbackUseful === true}
+                    onChange={() => setFeedbackUseful(true)}
+                  />{" "}
+                  Yes
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="useful"
+                    checked={feedbackUseful === false}
+                    onChange={() => setFeedbackUseful(false)}
+                  />{" "}
+                  No
+                </label>
+              </div>
+
+              <div className="feedback-row">
+                <label>
+                  Language:{" "}
+                  <select
+                    value={feedbackLanguage}
+                    onChange={(e) => setFeedbackLanguage(e.target.value)}
+                  >
+                    <option value="en">English</option>
+                    <option value="ha">Hausa</option>
+                    <option value="ig">Igbo</option>
+                    <option value="yo">Yoruba</option>
+                  </select>
+                </label>
+
+                <label>
+                  Subject:{" "}
+                  <select
+                    value={feedbackSubject}
+                    onChange={(e) => setFeedbackSubject(e.target.value)}
+                  >
+                    <option value="general">General</option>
+                    <option value="science">Science</option>
+                    <option value="math">Mathematics</option>
+                    <option value="english">English</option>
+                    <option value="social">Social Studies</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+              </div>
+
+              <textarea
+                placeholder="Optional: anything else you want us to know?"
+                value={feedbackNotes}
+                onChange={(e) => setFeedbackNotes(e.target.value)}
+                rows={2}
+              />
+
+              {feedbackError && (
+                <p className="feedback-error">{feedbackError}</p>
+              )}
+
+              <button
+                type="button"
+                onClick={handleSubmitFeedback}
+                disabled={feedbackUseful === null || submittingFeedback}
+              >
+                {submittingFeedback ? "Submitting…" : "Submit feedback"}
+              </button>
+            </section>
+          )}
+
+          {feedbackSubmitted && (
+            <section className="feedback-thanks">
+              <p>Thank you — your feedback was recorded.</p>
+            </section>
+          )}
 
           <section className="timings">
             <span>ASR: {result.asr_seconds.toFixed(2)}s</span>
