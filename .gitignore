@@ -17,7 +17,7 @@ dist/
 .ruff_cache/
 .coverage
 htmlcov/
-
+.pytest_tmp/
 # Environment variables
 .env
 .env.*
