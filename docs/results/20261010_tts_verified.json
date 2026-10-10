@@ -1,0 +1,24 @@
+{
+  "milestone": "browser text-to-speech verified on CPU-only laptop",
+  "date": "2026-10-10",
+  "significance": "The last product-loop component is verified. The assistant now produces spoken answers entirely offline.",
+  "implementation": "frontend/src/tts.ts, using the browser's Web Speech API (speechSynthesis + SpeechSynthesisUtterance)",
+  "backend_changes": "none",
+  "new_dependencies": "none",
+  "hardware": "Lenovo laptop (friend's), Windows, Chrome/Edge",
+  "voices_available": [
+    "Microsoft David - English (United States) (en-US)",
+    "Microsoft Mark - English (United States) (en-US)",
+    "Microsoft Zira - English (United States) (en-US)"
+  ],
+  "voice_selected": "Microsoft David (via en-US fallback when en-NG is not present)",
+  "known_limitations": [
+    "Windows ships no Hausa voice by default. Hausa answers will be pronounced by an English voice with distorted phonetics.",
+    "Replacing this with a proper multilingual TTS service is a single-file change (frontend/src/tts.ts)."
+  ],
+  "verification": [
+    "speechSynthesis.getVoices().length === 3",
+    "speechSynthesis.speak(new SpeechSynthesisUtterance(...)) triggers the onend callback",
+    "The Play button in the UI is not displayed when speechSynthesis is unsupported"
+  ]
+}
