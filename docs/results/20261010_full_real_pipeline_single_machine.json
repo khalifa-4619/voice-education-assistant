@@ -1,0 +1,41 @@
+{
+  "milestone": "full real pipeline on a single CPU-only laptop",
+  "date": "2026-10-10",
+  "significance": "First end-to-end run of the Voice Education Assistant with real browser audio, real N-ATLaS ASR, and real N-ATLaS LLM. No fake components, no cloud, no GPU.",
+  "hardware": {
+    "machine": "Lenovo laptop (friend's)",
+    "cpu": "Intel, 4 cores / 8 threads",
+    "ram_gb": 13.9,
+    "gpu": "none"
+  },
+  "runtime": {
+    "python": "3.13.3",
+    "transformers": "5.18.0",
+    "torch": "2.14.1+cpu",
+    "librosa": "1.0.0",
+    "ffmpeg": "9.0.2-full_build-www.gyan.dev",
+    "ollama": "local server on port 11434"
+  },
+  "models": {
+    "asr": "NCAIR1/NigerianAccentedEnglish (Whisper Small, ~1 GB)",
+    "llm": "hf.co/Tushe/AMINI-ASSISTANT-GGUF-Q4-B:Q4_K_M (derived from NCAIR1/N-ATLaS, Llama-3 8B, ~4.5 GB)"
+  },
+  "flow": "browser microphone → MediaRecorder → WebM upload → FastAPI → ffmpeg conversion to 16 kHz mono WAV → Whisper ASR → N-ATLaS LLM → JSON response",
+  "input": {
+    "source": "browser microphone (Chrome/Edge MediaRecorder)",
+    "spoken_question": "what's water? can you describe to me the advantages and disadvantages of using water in our daily activities?"
+  },
+  "output": {
+    "transcript": "what's water? can you describe to me the advantages and disadvantages of using water in our daily activities?",
+    "answer_summary": "Five advantages and five disadvantages of water use, followed by a summary.",
+    "asr_seconds": 60.18,
+    "llm_seconds": 235.93,
+    "total_seconds": 296.11
+  },
+  "notes": [
+    "Response latency is ~5 minutes on this CPU. Not production-grade for a live assistant.",
+    "Production path remains the official NCAIR hosted API when credentials are available.",
+    "The adapter architecture allows swapping LocalNATLASASR/HostedNATLASASR and OllamaNATLASLLM/HostedNATLASLLM without touching the pipeline or frontend.",
+    "This run was performed entirely offline from the public internet except for the earlier model downloads, which are cached locally."
+  ]
+}
