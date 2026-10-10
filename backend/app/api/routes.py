@@ -7,22 +7,26 @@ Routes here are thin by design. Their job:
 3. Convert the internal result to the HTTP response schema.
 
 They do NOT select providers (that is app.dependencies) and they do NOT
-contain pipeline logic (that is app.pipeline). If a route grows beyond
-those three responsibilities, the extra logic belongs in app/services/.
+contain pipeline logic (that is app.pipeline).
 """
 
 import tempfile
+import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 
-from app.api.schemas import AskResponse
+from app.api.schemas import (
+    AskResponse,
+    FeedbackRequest,
+    FeedbackResponse,
+)
 from app.config import get_settings
 from app.dependencies import describe_providers
+from app.validation.log import append_interaction
 
 router = APIRouter()
 
-# Read uploads in 1 MB chunks. Keeps memory bounded regardless of file size.
 _CHUNK_BYTES = 1024 * 1024
 
 
@@ -36,18 +40,12 @@ def health() -> dict:
 
 
 def _extension_of(filename: str | None) -> str:
-    """Return the lowercase extension of a filename without the dot."""
     if not filename:
         return ""
     return Path(filename).suffix.lstrip(".").lower()
 
 
 def _save_with_size_limit(upload: UploadFile, max_bytes: int) -> Path:
-    """Stream an UploadFile to a temp file, enforcing a byte limit.
-
-    Raises HTTPException(413) if the upload exceeds max_bytes.
-    Caller is responsible for unlinking the returned path.
-    """
     suffix = Path(upload.filename or "").suffix or ".audio"
     with tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=suffix) as tmp:
         total = 0
@@ -72,12 +70,7 @@ def _save_with_size_limit(upload: UploadFile, max_bytes: int) -> Path:
 
 @router.post("/api/v1/ask", response_model=AskResponse)
 def ask(request: Request, audio: UploadFile = File(...)) -> AskResponse:
-    """Accept audio, run the voice pipeline, return transcript and answer.
-
-    Declared as sync (`def`) on purpose. The pipeline performs CPU-bound
-    work that blocks; FastAPI runs sync routes in a worker thread so the
-    event loop stays free for other requests.
-    """
+    """Accept audio, run the voice pipeline, return transcript and answer."""
     settings = get_settings()
 
     extension = _extension_of(audio.filename)
@@ -90,24 +83,59 @@ def ask(request: Request, audio: UploadFile = File(...)) -> AskResponse:
             ),
         )
 
+    interaction_id = str(uuid.uuid4())
     tmp_path = _save_with_size_limit(audio, settings.max_audio_bytes)
 
     try:
         pipeline = request.app.state.pipeline
         result = pipeline.ask(tmp_path)
     except NotImplementedError as exc:
-        # Stubs raise NotImplementedError with a clear message. Surface
-        # them as 503 (service unavailable) rather than 500, because the
-        # service is intentionally not configured, not broken.
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     finally:
         tmp_path.unlink(missing_ok=True)
 
+    # Persist a first-pass record so even interactions with no feedback
+    # are documented. Feedback submission appends a second record with
+    # the same interaction_id.
+    append_interaction(
+        {
+            "interaction_id": interaction_id,
+            "kind": "ask",
+            "transcript": result.transcript,
+            "answer": result.answer,
+            "asr_seconds": result.asr_seconds,
+            "llm_seconds": result.llm_seconds,
+            "total_seconds": result.total_seconds,
+            "started_at": result.started_at.isoformat(),
+            "providers": describe_providers(),
+        }
+    )
+
     return AskResponse(
+        interaction_id=interaction_id,
         transcript=result.transcript,
         answer=result.answer,
         asr_seconds=result.asr_seconds,
         llm_seconds=result.llm_seconds,
         total_seconds=result.total_seconds,
         started_at=result.started_at,
+    )
+
+
+@router.post("/api/v1/feedback", response_model=FeedbackResponse)
+def feedback(payload: FeedbackRequest) -> FeedbackResponse:
+    """Record a student's feedback about one interaction."""
+    append_interaction(
+        {
+            "interaction_id": payload.interaction_id,
+            "kind": "feedback",
+            "useful": payload.useful,
+            "language": payload.language,
+            "subject": payload.subject,
+            "notes": payload.notes,
+        }
+    )
+    return FeedbackResponse(
+        recorded=True,
+        interaction_id=payload.interaction_id,
     )
