@@ -1,0 +1,23 @@
+# Voice Education Assistant — Submission URLs
+# NAIC 2026, Problem Statement 2 (Voice-First Access)
+
+Working Artefact (repository):
+https://github.com/khalifa-4619/voice-education-assistant
+
+Video Demonstration:
+https://youtu.be/0pYRz9ukNLU?si=UaRDTqNjxws4yd0O
+
+N-ATLAS Integration Evidence:
+[to be filled: link to ZIP file uploaded to Drive / GitHub release]
+
+Real-World Validation PDF:
+[to be filled]
+
+Technical Documentation PDF:
+[to be filled]
+
+Team Profile PDF:
+[to be filled]
+
+Institutional Endorsement Letter:
+[to be collected — not public]
