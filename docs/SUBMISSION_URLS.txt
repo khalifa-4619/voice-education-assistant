@@ -34,9 +34,9 @@ GitHub URL:
   https://github.com/khalifa-4619/voice-education-assistant/blob/main/docs/submission_pdf/TeamProfile.pdf
 
 ## Institutional Endorsement Letter (item 7)
-Not in this public repository.
-Held locally and uploaded directly to the NAIC submission portal:
-  C:\Users\LENOVO\Downloads\<endorsement-letter-filename>
+Not in this public repository
+Held locally and uploaded directly to the NAIC submission portal.
+Not published in this repository, because it contains a real signature.
 
 ## Notes
 - All PDFs and the ZIP are committed to this repository under docs/submission_pdf/
