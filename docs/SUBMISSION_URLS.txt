@@ -1,23 +1,45 @@
-# Voice Education Assistant — Submission URLs
+# Voice Education Assistant — Submission Links
 # NAIC 2026, Problem Statement 2 (Voice-First Access)
+#
+# Everything below is either a public URL or a file in this repository.
 
-Working Artefact (repository):
+## Working Artefact (item 1)
 https://github.com/khalifa-4619/voice-education-assistant
 
-Video Demonstration:
+## N-ATLAS Integration Evidence (item 2)
+File in this repository:
+  docs/submission_zip/NATLAS_Integration_Evidence.zip
+GitHub URL:
+  https://github.com/khalifa-4619/voice-education-assistant/blob/main/docs/submission_zip/NATLAS_Integration_Evidence.zip
+
+## Real-World Validation (item 3)
+File in this repository:
+  docs/submission_pdf/RealWorldValidation.pdf
+GitHub URL:
+  https://github.com/khalifa-4619/voice-education-assistant/blob/main/docs/submission_pdf/RealWorldValidation.pdf
+
+## Technical Documentation (item 4)
+File in this repository:
+  docs/submission_pdf/TechnicalDocumentation.pdf
+GitHub URL:
+  https://github.com/khalifa-4619/voice-education-assistant/blob/main/docs/submission_pdf/TechnicalDocumentation.pdf
+
+## Video Demonstration (item 5)
 https://youtu.be/0pYRz9ukNLU?si=UaRDTqNjxws4yd0O
 
-N-ATLAS Integration Evidence:
-[to be filled: link to ZIP file uploaded to Drive / GitHub release]
+## Team Profile (item 6)
+File in this repository:
+  docs/submission_pdf/TeamProfile.pdf
+GitHub URL:
+  https://github.com/khalifa-4619/voice-education-assistant/blob/main/docs/submission_pdf/TeamProfile.pdf
 
-Real-World Validation PDF:
-[to be filled]
+## Institutional Endorsement Letter (item 7)
+Not in this public repository.
+Held locally and uploaded directly to the NAIC submission portal:
+  C:\Users\LENOVO\Downloads\<endorsement-letter-filename>
 
-Technical Documentation PDF:
-[to be filled]
-
-Team Profile PDF:
-[to be filled]
-
-Institutional Endorsement Letter:
-[to be collected — not public]
+## Notes
+- All PDFs and the ZIP are committed to this repository under docs/submission_pdf/
+  and docs/submission_zip/.
+- The endorsement letter is intentionally excluded from the public repository
+  because it contains a real signature.
