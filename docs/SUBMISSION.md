@@ -274,8 +274,8 @@ time is dominated by autoregressive token generation on CPU.
 
 | Language | Speech input (ASR) | Text answer (LLM) | Spoken answer (TTS) |
 |---|---|---|---|
-| Nigerian-accented English | ✅ verified end-to-end | ✅ verified | ✅ verified |
-| Hausa | ⚠️ requires model swap | ✅ verified separately | ⚠️ no Hausa voice on Windows |
+| Nigerian-accented English | Verified end-to-end | Verified | Verified |
+| Hausa | Requires model swap | Verified separately | No Hausa voice on Windows |
 
 **Nigerian-accented English** is fully validated: the ASR model was
 fine-tuned by NCAIR for this accent.

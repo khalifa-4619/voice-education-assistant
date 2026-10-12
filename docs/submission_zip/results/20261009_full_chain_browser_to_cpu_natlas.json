@@ -1,0 +1,32 @@
+{
+  "milestone": "first full browser-to-CPU-N-ATLaS chain",
+  "date": "2026-10-09",
+  "topology": {
+    "client": "browser on laptop 192.168.101.173",
+    "server": "fastapi on laptop 192.168.101.78, cpu-only",
+    "transport": "http over local wifi"
+  },
+  "configuration": {
+    "asr_provider": "fake",
+    "llm_provider": "ollama",
+    "model": "hf.co/Tushe/AMINI-ASSISTANT-GGUF-Q4-B:Q4_K_M",
+    "base_model": "NCAIR1/N-ATLaS"
+  },
+  "input": {
+    "source": "browser microphone (MediaRecorder)",
+    "spoken_question": "What is photosynthesis?"
+  },
+  "output": {
+    "transcript": "What is photosynthesis?",
+    "transcript_note": "Fake ASR placeholder. Not real transcription.",
+    "answer": "Photosynthesis is a process used by plants, algae, and certain bacteria to convert light energy, usually from the sun, into chemical energy that can later be released to fuel the organisms' activities (energy transformation). This chemical energy is stored in carbohydrate molecules, such as sugars, which are synthesized from water and carbon dioxide. Oxygen is produced as a waste product of this process. Photosynthesis is the primary process by which oxygen is produced in the Earth's atmosphere and is essential for life.",
+    "asr_seconds": 0.0,
+    "llm_seconds": 68.89,
+    "total_seconds": 68.89
+  },
+  "notes": [
+    "Real audio capture in browser, real HTTP upload, real N-ATLaS inference on CPU.",
+    "ASR remains a documented placeholder; next step is to install real ASR on the server machine.",
+    "Latency (68.9s) is not production-ready; production path is the official NCAIR hosted API."
+  ]
+}

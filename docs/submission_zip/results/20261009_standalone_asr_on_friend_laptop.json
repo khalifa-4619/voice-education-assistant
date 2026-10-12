@@ -1,0 +1,20 @@
+{
+  "milestone": "standalone N-ATLaS ASR verification on friend's CPU laptop",
+  "date": "2026-10-09",
+  "runtime": "python 3.13.3, transformers 5.18.0, torch 2.14.1+cpu, librosa 1.0.0",
+  "model": "NCAIR1/NigerianAccentedEnglish (Whisper Small)",
+  "hardware": "Lenovo laptop, 4 cores / 8 threads, ~14 GB RAM, no GPU",
+  "input": {
+    "source": "M4A converted to WAV via ffmpeg",
+    "file": "sample3.wav"
+  },
+  "output": {
+    "transcript": "what's inflation and how does it affect the purchasing power of households?",
+    "elapsed_seconds": 53.97
+  },
+  "notes": [
+    "M4A needed FFmpeg as a system dependency for librosa to decode.",
+    "First successful real ASR on the friend's laptop.",
+    "Next step: wire into FastAPI via ASR_PROVIDER=local and re-run browser flow."
+  ]
+}
